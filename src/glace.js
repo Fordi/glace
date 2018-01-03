@@ -179,7 +179,7 @@
       let template = undefined;
       let ins = { output: [], update: () => {} };
       let update = newState => {
-        newState = getChildState(adjustState(newState));
+        newState = adjustState(getChildState(newState));
         let newTemplate = getTemplate(newState) || NOP;
         if (newTemplate !== template) {
           template = newTemplate;
