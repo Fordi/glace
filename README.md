@@ -115,3 +115,76 @@ you can ignore the `update` function returned.
     Glace.append(document.body, template, reduxStore);
 
 Later, when actions are dispatched to the store, the templates will update automatically.
+
+### Templates as tag handlers
+
+Templates can be defined as tag handlers by adding a comma-delimited `props` list to their declaration:
+
+    <script type="text/glace-template" id="head-with-sub" props="head, subhead">
+      <header>
+          <h1>${head}</h1>
+          <if cond="subhead">
+            <h2>${subhead}</h2>
+          </if>
+      </header>
+    </script>
+
+You can then use this template elsewhere:
+
+    <head-with-sub head="content.title" subhead="content.subtitle" />
+
+This works just as well with async templates:
+
+    <meta glace-template="my-template.tpl" props="foo, bar" />
+
+    ...
+    
+    <my-template foo="foo" bar="status.bar" />
+
+### Transclusion
+
+You can also transclude a template in another using the `<view>` tag:
+    
+    <view template="shopping-cart" state="shoppingCart" />
+    
+If `state` is omitted, the child view sees the same state as the parent view.    
+
+Views also support yielding, via the `<yield />` tag, to the referencing `<view>` tag's children.  For example:
+
+    <script type="text/glace-template" id="inner">
+       <p>Yielded content: <yield /></p>
+    </script>
+
+    <script type="text/glace-template" id="outer">
+        <view template="inner">
+           This will show up after `Yielded content`
+        </view>
+    </script>
+
+### Advanced tag handlers and attribute handlers
+
+`if`, `for`, and `view` are all implemented as entries in `Glace.tagHandlers`.  You can implement your own tag handler.  They 
+are functions that accept a `props` object, containing the attributes passed to the tag (and `TEMPLATE`, which is the 
+template for its child nodes), and return a template function as described in the architecture section above.  These are run 
+at compile-time, and are essentially stand-ins for the normal element template function.
+
+Attribute handlers are a different sort of beast.  They run at runtime, and accept `state`, `element`, and `value`, where 
+`value` is a list of substitution tokens. (e.g., if a value is "I'm ${color} boo-da-bee", the substitution list will be ["I'm 
+", function getterForColor(state), "boo-da-bee"].  Even indices will always contain Strings, odd will always contain 
+`function(state)`'s.  Getter functions will also have an `expression` member, containing the raw expression the function is 
+based on.
+
+
+### Using in your project
+
+I don't have the packaging / bundling all sorted yet.  If you want to use this on your pages (at your own risk, of course), 
+just download `glace.js` and pull it into your page.  Once I've vetted out a reasonably accurate XML parser in the Node 
+environment, I'll add my tests and appropriate bundling scripts.
+
+Meanwhile, I do have minification/transpilation working (to ES5) - getting Glacé down to a tiny 6.5k, but runnable as far 
+back as IE9.  Run:
+
+    npm install
+    npm run dist
+
+The minified lib should be at `dist/glace.min.js`
