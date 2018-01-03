@@ -166,8 +166,9 @@
    *  based on `expression`, with an inner template that can be
    *  further transcluded using <yield />
    */
-  let transclude = (yieldTemplate, expression) => {
-    let getTemplate = getter(expression);
+  let transclude = (yieldTemplate, template, state) => {
+    let getTemplate = getter(template);
+    let getChildState = state ? getter(state) : ((newState) => newState);
     let adjustState = (state) => {
       let localState = assign({}, state);
       localState[YIELD] = yieldTemplate;
@@ -178,7 +179,7 @@
       let template = undefined;
       let ins = { output: [], update: () => {} };
       let update = newState => {
-        newState = adjustState(newState);
+        newState = getChildState(adjustState(newState));
         let newTemplate = getTemplate(newState) || NOP;
         if (newTemplate !== template) {
           template = newTemplate;
@@ -528,10 +529,10 @@
     /**
      * Returns a template that pulls in a template as referenced by `expression`,
      *  providing the child template to `yield`
-     *  e.g., <view from="expression">...</view>
+     *  e.g., <view template="expression" state="expression">...</view>
      */
     'view': props => {
-      return transclude(props.TEMPLATE, props.from);
+      return transclude(props.TEMPLATE, props.template, props.state);
     },
     /**
      * <yield />
