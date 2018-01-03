@@ -1,0 +1,19 @@
+{
+  "name": "glace",
+  "version": "0.0.1",
+  "description": "Fast, minimalist templating engine using nothing but the DOM.",
+  "main": "src/glace.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "BABEL_ENV=production node node_modules/babel-cli/bin/babel.js src/glace.js -o dist/glace.min.js"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-minify": "^0.2.0"
+  },
+  "author": "Bryan Elliott <ook@codemonkeybryan.com>",
+  "license": "ISC"
+}
