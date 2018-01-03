@@ -12,12 +12,12 @@ well-formed XML fragments and it outputs real DOM in real time.
 The design goal of Glacé was to make a `template` as simple a thing as made sense, based on just one Type and Interface 
 (forgive the Java-like syntax):
 
-    interface TemplateResult {Glacé
+    interface GlaceTemplateResult {
         void update(Object newState);
-        Array<Node> output;
+        Array<DOMNode> output;
     }
 
-    TemplateResult template(Document document, Object state)
+    GlaceTemplateResult template(Document document, Object state)
 
 That is, you pass an owning document and state to the `template`, and it returns a list of nodes as `returnValue.output` 
 and an updater function as `returnValue.update(state)`.  There is no owning class; views' appearance is based solely on 
