@@ -524,7 +524,7 @@
                </for>
      */
     'for': props => {
-      return list(props.from || props.TEMPLATE, props.each, props.as, props.index);
+      return list(props.template || props.TEMPLATE, props.each, props.as, props.index);
     },
     /**
      * Returns a template that pulls in a template as referenced by `expression`,
