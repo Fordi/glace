@@ -225,4 +225,4 @@ The minified lib should be at `dist/glace.min.js`
 
 ### Caveats
 
-See [Issues](https://github.com/Fordi/glace/issues).
+See [Caveat issues](https://github.com/Fordi/glace/issues?q=is%3Aopen+is%3Aissue+label%3ACaveat).
