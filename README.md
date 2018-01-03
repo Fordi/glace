@@ -222,3 +222,7 @@ back as IE9.  Run:
     npm run dist
 
 The minified lib should be at `dist/glace.min.js`
+
+### Caveats
+
+See [Issues](/Fordi/glace/issues).
