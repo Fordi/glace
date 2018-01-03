@@ -88,6 +88,15 @@ Templates also support minimal structuring, e.g., conditions and loops:
         ${value}
     </for>
 
+#### More on `<for>`
+
+`<for>` accepts the following attributes:
+
+* `each` - The list to iterate against
+* `template` - Which template to use for each item.  If not present, the child DOM is used.
+* `as` - The name of each item in the child's state.  By default, this is `content`
+* `index` - The name of the index for each item in the child's state.  By default, this is `index`
+
 ### Predefined templates
 
 Like most other templaters, Glacé can pick up templates defined in the page header:
@@ -174,6 +183,31 @@ Attribute handlers are a different sort of beast.  They run at runtime, and acce
 `function(state)`'s.  Getter functions will also have an `expression` member, containing the raw expression the function is 
 based on.
 
+### Events and Dispatchers
+
+Because Glacé is written with Redux in mind, it's able to pass a dispatcher function to all child templates, which is the preferred method of handling events:
+
+    <a href="#" on-click="return !!dispatch({ type: 'ADD_PROPERTY' })">Add</a>
+
+You can pass parts of the state to the handler:
+    <for each="myList">
+        <tr>
+            <th>${content.name}</th>
+            <td>${content.value}</td>
+            <td class="remove" on-click="dispatch({ type: 'REMOVE_PROPERTY', which: content })">
+                <!-- assuming user-icon is a view we've named -->
+                <user-icon name="remove" />
+            </td>
+        </tr>
+    </for>
+
+If you're not using Redux, you can populate this with Glace.append's fourth argument:
+
+    let state = {};
+    let dispatch = (action) => {
+     /*...*/
+    };
+    let update = Glace.append(document.body, 'my-template', state, dispatch);
 
 ### Using in your project
 
