@@ -177,11 +177,7 @@ are functions that accept a `props` object, containing the attributes passed to 
 template for its child nodes), and return a template function as described in the architecture section above.  These are run 
 at compile-time, and are essentially stand-ins for the normal element template function.
 
-Attribute handlers are a different sort of beast.  They run at runtime, and accept `state`, `element`, and `value`, where 
-`value` is a list of substitution tokens. (e.g., if a value is "I'm ${color} boo-da-bee", the substitution list will be ["I'm 
-", function getterForColor(state), "boo-da-bee"].  Even indices will always contain Strings, odd will always contain 
-`function(state)`'s.  Getter functions will also have an `expression` member, containing the raw expression the function is 
-based on.
+Attribute handlers (Glace.attributeHandlers) are a different sort of beast.  They run at runtime, and accept `state`, `element`, and `value`, where `value` is a list of substitution tokens. (e.g., if a value is "I'm ${color} boo-da-bee", the substitution list will be ["I'm ", function getterForColor(state), "boo-da-bee"].  Even indices will always contain Strings, odd will always contain `function(state)`'s.  Getter functions will also have an `expression` member, containing the raw expression the function is based on.
 
 ### Events and Dispatchers
 
