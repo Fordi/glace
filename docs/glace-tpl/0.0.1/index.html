@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3>glace-tpl 0.0.1</h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>Glacé</h1><p>Glacé is a sweet glaze to put atop Redux</p>
+<h2>What this really is</h2><p>Glacé aspires to be a simple, fast, small, and elegant view layer for simple Redux-based apps.  Its templates are entirely
+well-formed XML fragments and it outputs real DOM in real time.</p>
+<h2>Architecture discussion</h2><p>The design goal of Glacé was to make a <code>template</code> as simple a thing as made sense, based on just one Type and Interface 
+(forgive the Java-like syntax):</p>
+<pre class="prettyprint source"><code>interface GlaceTemplateResult {
+    void update(Object newState);
+    Array&lt;DOMNode> output;
+}
+
+GlaceTemplateResult template(Document document, Object state)</code></pre><p>That is, you pass an owning document and state to the <code>template</code>, and it returns a list of nodes as <code>returnValue.output</code> 
+and an updater function as <code>returnValue.update(state)</code>.  There is no owning class; views' appearance is based solely on 
+the state and the template, and the template has as little logic as possible.</p>
+<p>This simplified the process of parsing and compilation; we simply parse the template as DOM, then walk the DOM tree, 
+creating templates and subtemplates as needed.</p>
+<p>Security was not considered; it is assumed that you (the developer) own the templates, and would not put malicious code 
+into them.  This allowed us to use <code>new Function()</code> for fetching values off the state, enabling the whole compilation process
+to be, essentially, an exercise in lambda calculus.</p>
+<h3>The transclusion problem</h3><p><code>&lt;if&gt;</code>, <code>&lt;for&gt;</code>, and <code>&lt;view&gt;</code> are tags that are troublesome for any live templating engine to deal with - specifically,
+knowing where the DOM's insertion points should be post-render.</p>
+<p>Angular necessarily wraps children of these with an element, which can cause troubles for table rendering.  Ember 1.x did it 
+with <code>&lt;script&gt;</code> tags, which, while effective, looks messy when inspecting.</p>
+<p>Glacé makes use of a quirk of a live DOM: empty DOM text nodes.  These can't be seen in the inspection view, but will maintain
+an insertion point in the DOM tree.</p>
+<h2>Template examples</h2><h3>Static text</h3><pre class="prettyprint source"><code>This is a test.</code></pre><p>Outputs what you'd expect:</p>
+<pre class="prettyprint source"><code>This is a test.</code></pre><h3>Substitutions</h3><p>Transclusions of state variables are done using something akin to Javascript's Template Literals:</p>
+<pre class="prettyprint source"><code>This is a ${type}.</code></pre><p>Which, when rendered with <code>{ type: 'sample' }</code>, results in:</p>
+<pre class="prettyprint source"><code>This is a sample.</code></pre><p>As with Template literals, these are evaluated as Javascript:</p>
+<pre class="prettyprint source"><code>1 + 1 = ${1 + 1}
+
+1 + 1 = 2</code></pre><p>Attributes are also supported in this way:</p>
+<pre class="prettyprint source"><code>&lt;div class=&quot;${classNames}&quot;>&lt;/div></code></pre><p>Rendered with <code>{ classNames: 'my-class your-class' }</code>:</p>
+<pre class="prettyprint source"><code>&lt;div class=&quot;my-class your-class&quot;>&lt;/div></code></pre><p>Templates also support minimal structuring, e.g., conditions and loops:</p>
+<pre class="prettyprint source"><code>&lt;if cond=&quot;showValue&quot;>
+    Value shown! ${value}
+&lt;/if>
+&lt;!-- cannot else (yet) -->
+&lt;unless cond=&quot;showValue&quot;>
+    Value not shown!
+&lt;/unless>
+&lt;for each=&quot;values&quot; as=&quot;value&quot;>
+    ${value}
+&lt;/for></code></pre><h4>More on <code>&lt;for&gt;</code></h4><p><code>&lt;for&gt;</code> accepts the following attributes:</p>
+<ul>
+<li><code>each</code> - The list to iterate against</li>
+<li><code>template</code> - Which template to use for each item.  If not present, the child DOM is used.</li>
+<li><code>as</code> - The name of each item in the child's state.  By default, this is <code>content</code></li>
+<li><code>index</code> - The name of the index for each item in the child's state.  By default, this is <code>index</code></li>
+</ul>
+<h3>Predefined templates</h3><p>Like most other templaters, Glacé can pick up templates defined in the page header:</p>
+<pre class="prettyprint source"><code>&lt;script type=&quot;text/glace-template&quot; id=&quot;heading3&quot;>
+  &lt;h3>${content}&lt;/h3>
+&lt;/script></code></pre><p>It can also pick up templates asynchronously:</p>
+<pre class="prettyprint source"><code>&lt;meta glace-template=&quot;my-template.tpl&quot; /></code></pre><p>To invoke Glacé, simply append a template to a DOM element with a state (which can be empty):</p>
+<pre class="prettyprint source"><code>let update = Glace.append(document.body, template, {});</code></pre><p>When the state changes, run the update command:</p>
+<pre class="prettyprint source"><code>update({title: 'Yer a wizard, `arry');</code></pre><p>Glacé is aware of Redux; if you pass it a Redux <code>Store</code>, it will subscribe to it and update as actions are passed - so
+you can ignore the <code>update</code> function returned.</p>
+<pre class="prettyprint source"><code>let store = Redux.createStore(myReducer);
+Glace.append(document.body, template, reduxStore);</code></pre><p>Later, when actions are dispatched to the store, the templates will update automatically.</p>
+<h3>Templates as tag handlers</h3><p>Templates can be defined as tag handlers by adding a comma-delimited <code>props</code> list to their declaration:</p>
+<pre class="prettyprint source"><code>&lt;script type=&quot;text/glace-template&quot; id=&quot;head-with-sub&quot; props=&quot;head, subhead&quot;>
+  &lt;header>
+      &lt;h1>${head}&lt;/h1>
+      &lt;if cond=&quot;subhead&quot;>
+        &lt;h2>${subhead}&lt;/h2>
+      &lt;/if>
+  &lt;/header>
+&lt;/script></code></pre><p>You can then use this template elsewhere:</p>
+<pre class="prettyprint source"><code>&lt;head-with-sub head=&quot;content.title&quot; subhead=&quot;content.subtitle&quot; /></code></pre><p>This works just as well with async templates:</p>
+<pre class="prettyprint source"><code>&lt;meta glace-template=&quot;my-template.tpl&quot; props=&quot;foo, bar&quot; />
+
+...
+
+&lt;my-template foo=&quot;foo&quot; bar=&quot;status.bar&quot; /></code></pre><h3>Transclusion</h3><p>You can also transclude a template in another using the <code>&lt;view&gt;</code> tag:</p>
+<pre class="prettyprint source"><code>&lt;view template=&quot;shopping-cart&quot; state=&quot;shoppingCart&quot; /></code></pre><p>If <code>state</code> is omitted, the child view sees the same state as the parent view.    </p>
+<p>Views also support yielding, via the <code>&lt;yield /&gt;</code> tag, to the referencing <code>&lt;view&gt;</code> tag's children.  For example:</p>
+<pre class="prettyprint source"><code>&lt;script type=&quot;text/glace-template&quot; id=&quot;inner&quot;>
+   &lt;p>Yielded content: &lt;yield />&lt;/p>
+&lt;/script>
+
+&lt;script type=&quot;text/glace-template&quot; id=&quot;outer&quot;>
+    &lt;view template=&quot;inner&quot;>
+       This will show up after `Yielded content`
+    &lt;/view>
+&lt;/script></code></pre><h3>Advanced tag handlers and attribute handlers</h3><p><code>if</code>, <code>for</code>, and <code>view</code> are all implemented as entries in <code>Glace.tagHandlers</code>.  You can implement your own tag handler.  They 
+are functions that accept a <code>props</code> object, containing the attributes passed to the tag (and <code>TEMPLATE</code>, which is the 
+template for its child nodes), and return a template function as described in the architecture section above.  These are run 
+at compile-time, and are essentially stand-ins for the normal element template function.</p>
+<p>Attribute handlers (Glace.attributeHandlers) are a different sort of beast.  They run at runtime, and accept <code>state</code>, <code>element</code>, and <code>value</code>, where <code>value</code> is a list of substitution tokens. (e.g., if a value is &quot;I'm ${color} boo-da-bee&quot;, the substitution list will be [&quot;I'm &quot;, function getterForColor(state), &quot;boo-da-bee&quot;].  Even indices will always contain Strings, odd will always contain <code>function(state)</code>'s.  Getter functions will also have an <code>expression</code> member, containing the raw expression the function is based on.</p>
+<h3>Events and Dispatchers</h3><p>Because Glacé is written with Redux in mind, it's able to pass a dispatcher function to all child templates, which is the preferred method of handling events:</p>
+<pre class="prettyprint source"><code>&lt;a href=&quot;#&quot; on-click=&quot;return !!dispatch({ type: 'ADD_PROPERTY' })&quot;>Add&lt;/a></code></pre><p>You can pass parts of the state to the handler:
+    <for each="myList">
+        <tr>
+            <th>${content.name}</th>
+            <td>${content.value}</td>
+            <td class="remove" on-click="dispatch({ type: 'REMOVE_PROPERTY', which: content })">
+                <!-- assuming user-icon is a view we've named -->
+                <user-icon name="remove" />
+            </td>
+        </tr>
+    </for></p>
+<p>If you're not using Redux, you can populate this with Glace.append's fourth argument:</p>
+<pre class="prettyprint source"><code>let state = {};
+let dispatch = (action) => {
+ /*...*/
+};
+let update = Glace.append(document.body, 'my-template', state, dispatch);</code></pre><h3>Using in your project</h3><p>I don't have the packaging / bundling all sorted yet.  If you want to use this on your pages (at your own risk, of course), 
+just download <code>glace.js</code> and pull it into your page.  Once I've vetted out a reasonably accurate XML parser in the Node 
+environment, I'll add my tests and appropriate bundling scripts.</p>
+<p>Meanwhile, I do have minification/transpilation working (to ES5) - getting Glacé down to a tiny 6.5k, but runnable as far 
+back as IE9.  Run:</p>
+<pre class="prettyprint source"><code>npm install
+npm run dist</code></pre><p>The minified lib should be at <code>dist/glace.min.js</code></p>
+<h3>Caveats</h3><p>See <a href="https://github.com/Fordi/glace/issues?q=is%3Aopen+is%3Aissue+label%3ACaveat">Caveat issues</a>.</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-glace-tpl.html">glace-tpl</a></li></ul><h3>Classes</h3><ul><li><a href="module-glace-tpl-Error.html">Error</a></li></ul><h3>Interfaces</h3><ul><li><a href="module-glace-tpl-Store.html">Store</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Mar 12 2018 15:33:24 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

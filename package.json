@@ -5,6 +5,7 @@
   "main": "dist/glace.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "docs": "node node_modules/jsdoc/jsdoc.js -R ./README.md -P package.json -d docs src/glace.js",
     "dist": "BABEL_ENV=production node node_modules/babel-cli/bin/babel.js src/glace.js -o dist/glace.min.js"
   },
   "devDependencies": {
@@ -12,7 +13,8 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-minify": "^0.2.0"
+    "babel-preset-minify": "^0.2.0",
+    "jsdoc": "^3.5.5"
   },
   "author": "Bryan Elliott <ook@codemonkeybryan.com>",
   "license": "ISC",
