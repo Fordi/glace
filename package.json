@@ -1,5 +1,5 @@
 {
-  "name": "glace-templates",
+  "name": "glace-tpl",
   "version": "0.0.1",
   "description": "Fast, minimalist templating engine using nothing but the DOM.",
   "main": "dist/glace.js",
