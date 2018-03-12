@@ -2,7 +2,7 @@
   "name": "glace-tpl",
   "version": "0.0.1",
   "description": "Fast, minimalist templating engine using nothing but the DOM.",
-  "main": "dist/glace.js",
+  "main": "dist/glace.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "BABEL_ENV=production node node_modules/babel-cli/bin/babel.js src/glace.js -o dist/glace.min.js"

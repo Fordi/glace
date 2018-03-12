@@ -1,0 +1,17 @@
+{
+  "name": "glace-tpl",
+  "description": "Fast, minimalist templating engine using nothing but the DOM.",
+  "main": "dist/glace.min.js",
+  "authors": [
+    "Bryan Elliott <ook@codemonkeybryan.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/fordi/glace",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
