@@ -237,7 +237,7 @@
      **/
     let append = (parentNode, childTemplate, state, dispatch) => {
       if (typeof childTemplate === 'string') {
-        childTemplate = exports(childTemplate);
+        childTemplate = lookup(childTemplate);
       }
       let doc = parentNode.ownerDocument;
       let store = null;
@@ -352,7 +352,7 @@
           if (newTemplate !== template) {
             template = newTemplate;
             if (typeof template === 'string') {
-              template = exports(template);
+              template = lookup(template);
             }
             collect(ins.output, child => remove(child));
             ins = template(doc, newState, dispatch);
@@ -589,7 +589,7 @@
         if (node.nodeType === Node.ELEMENT_NODE) {
           let tagName = node.tagName;
           let lcTag = tagName.toLowerCase();
-          if (exports.tagHandlers[lcTag]) {
+          if (tagHandlers[lcTag]) {
             generators.push(callTagHandler(lcTag, node));
             return;
           }
@@ -671,8 +671,8 @@
       collect(node.attributes, (attribute) => {
         properties[attribute.nodeName] = attribute.nodeValue;
       });
-      properties.TEMPLATE = concatenate(makeDOMGenerators(nodeList));
-      return exports.tagHandlers[tagName](properties)
+      properties.TEMPLATE = concatenate(makeDOMGenerators(node.childNodes));
+      return tagHandlers[tagName](properties)
     };
     /**
      * Custom template generators for tags
@@ -783,7 +783,7 @@
       if (isArray(tpl)) {
         tpl = concatenate(tpl);
       }
-      exports.tagHandlers[name] = props => {
+      tagHandlers[name] = props => {
         let getters = propNames.reduce((g, p) => {
           g[p] = getter(props[p]);
           return g;
@@ -922,13 +922,13 @@
       let Glace = window.Glace = GlaceFactory(new DOMParser());
       // Read all the template references off the page.
       //  If a `props` attribute is present, make it a handler.
-      collect(document.querySelectorAll(`script[id][type="${CONTENT_TYPE}"]`), el => {
-        Glace.registerTemplate(scr.id, scr.getAttribute('props'), () => Glace.compile(scr.textContent, '#' + scr.id));
+      collect(document.querySelectorAll(`script[id][type="${CONTENT_TYPE}"]`), scr => {
+        Glace.register(scr.id, scr.getAttribute('props'), () => Glace.compile(scr.textContent, '#' + scr.id));
       });
       collect(document.querySelectorAll('meta[glace-template]'), meta => {
         let url = meta.getAttribute('glace-template');
         let id = url.replace(/^.*\/|\.tpl$/g, '');
-        Glace.registerTemplate(id, meta.getAttribute('props'), () => Glace.fetchTemplate(url, meta.getAttribute('loading-class')));
+        Glace.register(id, meta.getAttribute('props'), () => Glace.fetch(url, meta.getAttribute('loading-class')));
       });
     }
   }());
