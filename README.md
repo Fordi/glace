@@ -9,7 +9,7 @@ well-formed XML fragments and it outputs real DOM in real time.
 
 ## Architecture discussion
 
-The design goal of Glacé was to make a `template` as simple a thing as made sense, based on just one Type and Interface 
+The design goal of Glacé was to make a `template` as simple a thing as made sense, based on just one Type and Interface
 (forgive the Java-like syntax):
 
     interface GlaceTemplateResult {
@@ -19,14 +19,14 @@ The design goal of Glacé was to make a `template` as simple a thing as made sen
 
     GlaceTemplateResult template(Document document, Object state)
 
-That is, you pass an owning document and state to the `template`, and it returns a list of nodes as `returnValue.output` 
-and an updater function as `returnValue.update(state)`.  There is no owning class; views' appearance is based solely on 
+That is, you pass an owning document and state to the `template`, and it returns a list of nodes as `returnValue.output`
+and an updater function as `returnValue.update(state)`.  There is no owning class; views' appearance is based solely on
 the state and the template, and the template has as little logic as possible.
 
-This simplified the process of parsing and compilation; we simply parse the template as DOM, then walk the DOM tree, 
+This simplified the process of parsing and compilation; we simply parse the template as DOM, then walk the DOM tree,
 creating templates and subtemplates as needed.
 
-Security was not considered; it is assumed that you (the developer) own the templates, and would not put malicious code 
+Security was not considered; it is assumed that you (the developer) own the templates, and would not put malicious code
 into them.  This allowed us to use `new Function()` for fetching values off the state, enabling the whole compilation process
 to be, essentially, an exercise in lambda calculus.
 
@@ -35,7 +35,7 @@ to be, essentially, an exercise in lambda calculus.
 `<if>`, `<for>`, and `<view>` are tags that are troublesome for any live templating engine to deal with - specifically,
 knowing where the DOM's insertion points should be post-render.
 
-Angular necessarily wraps children of these with an element, which can cause troubles for table rendering.  Ember 1.x did it 
+Angular necessarily wraps children of these with an element, which can cause troubles for table rendering.  Ember 1.x did it
 with `<script>` tags, which, while effective, looks messy when inspecting.
 
 Glacé makes use of a quirk of a live DOM: empty DOM text nodes.  These can't be seen in the inspection view, but will maintain
@@ -52,7 +52,7 @@ Outputs what you'd expect:
     This is a test.
 
 ### Substitutions
-   
+
 Transclusions of state variables are done using something akin to Javascript's Template Literals:
 
     This is a ${type}.
@@ -64,17 +64,17 @@ Which, when rendered with `{ type: 'sample' }`, results in:
 As with Template literals, these are evaluated as Javascript:
 
     1 + 1 = ${1 + 1}
-    
+
     1 + 1 = 2
 
 Attributes are also supported in this way:
 
     <div class="${classNames}"></div>
-    
+
 Rendered with `{ classNames: 'my-class your-class' }`:
 
     <div class="my-class your-class"></div>
-    
+
 Templates also support minimal structuring, e.g., conditions and loops:
 
     <if cond="showValue">
@@ -147,15 +147,15 @@ This works just as well with async templates:
     <meta glace-template="my-template.tpl" props="foo, bar" />
 
     ...
-    
+
     <my-template foo="foo" bar="status.bar" />
 
 ### Transclusion
 
 You can also transclude a template in another using the `<view>` tag:
-    
+
     <view template="shopping-cart" state="shoppingCart" />
-    
+
 If `state` is omitted, the child view sees the same state as the parent view.    
 
 Views also support yielding, via the `<yield />` tag, to the referencing `<view>` tag's children.  For example:
@@ -172,9 +172,9 @@ Views also support yielding, via the `<yield />` tag, to the referencing `<view>
 
 ### Advanced tag handlers and attribute handlers
 
-`if`, `for`, and `view` are all implemented as entries in `Glace.tagHandlers`.  You can implement your own tag handler.  They 
-are functions that accept a `props` object, containing the attributes passed to the tag (and `TEMPLATE`, which is the 
-template for its child nodes), and return a template function as described in the architecture section above.  These are run 
+`if`, `for`, and `view` are all implemented as entries in `Glace.tagHandlers`.  You can implement your own tag handler.  They
+are functions that accept a `props` object, containing the attributes passed to the tag (and `TEMPLATE`, which is the
+template for its child nodes), and return a template function as described in the architecture section above.  These are run
 at compile-time, and are essentially stand-ins for the normal element template function.
 
 Attribute handlers (Glace.attributeHandlers) are a different sort of beast.  They run at runtime, and accept `state`, `element`, and `value`, where `value` is a list of substitution tokens. (e.g., if a value is "I'm ${color} boo-da-bee", the substitution list will be ["I'm ", function getterForColor(state), "boo-da-bee"].  Even indices will always contain Strings, odd will always contain `function(state)`'s.  Getter functions will also have an `expression` member, containing the raw expression the function is based on.
@@ -207,17 +207,11 @@ If you're not using Redux, you can populate this with Glace.append's fourth argu
 
 ### Using in your project
 
-I don't have the packaging / bundling all sorted yet.  If you want to use this on your pages (at your own risk, of course), 
-just download `glace.js` and pull it into your page.  Once I've vetted out a reasonably accurate XML parser in the Node 
-environment, I'll add my tests and appropriate bundling scripts.
+    $ bower install glace-tpl
 
-Meanwhile, I do have minification/transpilation working (to ES5) - getting Glacé down to a tiny 6.5k, but runnable as far 
-back as IE9.  Run:
+Once that's done, you can use:
 
-    npm install
-    npm run dist
-
-The minified lib should be at `dist/glace.min.js`
+    <script src="bower_components/glace-tpl/dist/glace.min.js"></script>
 
 ### Caveats
 
