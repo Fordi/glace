@@ -908,7 +908,7 @@
       lookup: lookup,
       register: registerTemplate,
       tagHandlers: tagHandlers,
-      Error: TemplateError
+      Error: Error
     };
   };
   (function () {
