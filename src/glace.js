@@ -11,7 +11,7 @@
     // Must be written in minified ES5 for compatibility and size
     // `state` must not be mangled, as it's used internally
     const GETTER_FN = `return function(state){try{with(state){return($)}}catch(e){return undefined}}`;
-    const mockDoc = PARSER.parseFromString('<html><head></head><body></body></html>');
+    const mockDoc = PARSER.parseFromString('<html><head></head><body></body></html>', 'text/html');
     const SANITIZER = mockDoc.createElement('div');
     // For the Node.NODE_* constants
     const Node = {
