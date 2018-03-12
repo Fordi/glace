@@ -1,6 +1,6 @@
 {
   "name": "glace-templates",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Fast, minimalist templating engine using nothing but the DOM.",
   "main": "src/glace.js",
   "scripts": {
