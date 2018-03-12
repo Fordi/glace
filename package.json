@@ -15,5 +15,8 @@
     "babel-preset-minify": "^0.2.0"
   },
   "author": "Bryan Elliott <ook@codemonkeybryan.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "xmldom": "^0.1.27"
+  }
 }
