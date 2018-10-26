@@ -197,10 +197,22 @@ You can pass parts of the state to the handler:
 If you're not using Redux, you can populate this with Glace.append's fourth argument:
 
     let state = {};
-    let dispatch = (action) => {
-     /*...*/
+    let util = {
+      dispatch: (action) => {
+       /*...*/
+      },
+      handleClick: (event) => {
+        console.log(event);
+      }
     };
-    let update = Glace.append(document.body, 'my-template', state, dispatch);
+    let update = Glace.append(document.body, 'my-template', state, util);
+
+Note that inline event handlers _must_ be expressions.  If it can't be parsed as javascript
+  as `() => (${attributeValue});`, it is _not_ valid.
+
+Note also that I do not list 'supported events'; that's because this is a dumb
+implmentation.  The `on-` is stripped off, and what's left is passed directly to
+`addEventListener`.
 
 ### Using in your project
 
