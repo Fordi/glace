@@ -88,6 +88,59 @@
   const PARSERERROR = 'parsererror';
   const YIELD = '_yieldedTemplate_';
   const { isArray } = Array;
+  const meta = (function () {
+    const metaTable = {};
+    const metaId = '_meta_' + Math.random().toString(36).substr(2, 8);
+    return (obj) => {
+      const getAll = (create) => {
+        let id = obj[metaId];
+        if (create) {
+          if (!id) {
+            id = Math.random().toString(36).substr(2, 8);
+            Object.defineProperty(obj, metaId, {
+              configurable: true,
+              writable: false,
+              enumerable: false,
+              value: id
+            });
+          }
+          if (!metaTable[id]) {
+            metaTable[id] = {};
+          }
+        }
+        return metaTable[id];
+      };
+      const drop = () => {
+        let rv = undefined;
+        if (obj[metaId]) {
+          if (!metaTable[obj[metaId]]) {
+            delete metaTable[obj[metaId]];
+          }
+          delete obj[metaId];
+        }
+      };
+      return {
+        set: (name, value) => {
+          getAll(true)[name] = value;
+        },
+        get: (name) => {
+          const m = getAll();
+          return m && m[name];
+        },
+        remove: (name) => {
+          const m = getAll();
+          if (m) {
+            delete m[name];
+            if (Object.keys(m).length === 0) {
+              drop(obj);
+            }
+          }
+        },
+        getAll,
+        drop
+      };
+    };
+  }());
 
   /**
    * Combination of map/filter/forEach
@@ -138,6 +191,14 @@
    **/
   let remove = (child) => {
     if (child.parentNode) {
+      const m = meta(child);
+      const events = m.get('events');
+      if (events) {
+        events.forEach(event => {
+          child.removeEventListener.apply(child, event);
+        });
+      }
+      m.drop();
       child.parentNode.removeChild(child);
     }
   };
@@ -612,9 +673,16 @@
           generators.push((d, s, util) => {
             let el = d.createElement(tagName);
             collect(events, handler => {
-              el.addEventListener.apply(handler.name, (event) => {
+              const m = meta(el);
+              if (!m.get('events')) {
+                m.set('events', []);
+              }
+              const events = m.get('events');
+              const ev = [handler.name, (event) => {
                 return handler.action.call(event.target, event, currentState, util);
-              }, false);
+              }, false];
+              el.addEventListener.apply(el, ev);
+              events.push(ev);
             });
 
             let updaters = [];

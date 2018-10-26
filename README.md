@@ -180,7 +180,7 @@ Attribute handlers are a different sort of beast.  They run at runtime, and acce
 
 Because Glacé is written with Redux in mind, it's able to pass a dispatcher function to all child templates, which is the preferred method of handling events:
 
-    <a href="#" on-click="return !!dispatch({ type: 'ADD_PROPERTY' })">Add</a>
+    <a href="#" on-click="dispatch({ type: 'ADD_PROPERTY' })">Add</a>
 
 You can pass parts of the state to the handler:
     <for each="myList">
